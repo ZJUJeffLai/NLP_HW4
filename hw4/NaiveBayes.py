@@ -3,6 +3,7 @@ import getopt
 import os
 import math
 import operator
+from collections import defaultdict
 
 class NaiveBayes:
     class TrainSplit:
@@ -66,11 +67,8 @@ class NaiveBayes:
         # TODO
         # classify a list of words and return the 'pos' or 'neg' classification
         # Write code here
-        numDoc_log = math.log(self.numDoc)
-        pos_log = math.log(self.total['pos'])
-        neg_log = math.log(self.total['neg'])
-        POS = pos_log - numDoc_log
-        NEG = neg_log - numDoc_log
+        POS = math.log(self.total['pos']) - math.log(self.numDoc)
+        NEG = math.log(self.total['neg']) - math.log(self.numDoc)
         pos_count = sum(self.poswords.values())
         neg_count = sum(self.negwords.values())
         
@@ -108,7 +106,7 @@ class NaiveBayes:
                 NEG += posword_log
                 NEG -= math.log(neg_count + len(self.vtotal))
         
-        flag_pos = POS >NEG
+        flag_pos = POS > NEG
         out = 'pos' if flag_pos else 'neg'
         return out
 
