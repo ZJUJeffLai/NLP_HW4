@@ -81,7 +81,7 @@ class NaiveBayes:
                 
                 # test fot neg
                 negword_log = math.log(self.negwords[word] + 18)
-                NEG += posword_log
+                NEG += negword_log
                 NEG -= math.log(neg_count + 18*len(self.vtotal))
         elif self.bestModel:
             for word in words:
@@ -92,7 +92,7 @@ class NaiveBayes:
                 
                 # test fot neg
                 negword_log = math.log(self.negwords[word] + 20)
-                NEG += posword_log
+                NEG += negword_log
                 NEG -= math.log(neg_count + 20*len(self.vtotal))
         else:
             for word in words:
@@ -103,7 +103,7 @@ class NaiveBayes:
                 
                 # test fot neg
                 negword_log = math.log(self.negwords[word] + 1)
-                NEG += posword_log
+                NEG += negword_log
                 NEG -= math.log(neg_count + len(self.vtotal))
         
         flag_pos = POS > NEG
