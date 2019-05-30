@@ -86,7 +86,7 @@ class NaiveBayes:
             neg_score += math.log(self.countneg[word] + smooth)
             neg_score -= math.log(self.totalneg + smooth*len(self.countvoc))
             
-        return 'pos' is pos_score > neg_score else 'neg'
+        return 'pos' if pos_score > neg_score else 'neg'
 
     def addDocument(self, classifier, words):
         """

@@ -5,7 +5,7 @@ import os
 import math
 import operator
 import collections
-
+from collections import defaultdict
 
 class NaiveBayes:
     class TrainSplit:
@@ -33,22 +33,6 @@ class NaiveBayes:
         self.stopWordsFilter = False
         self.naiveBayesBool = False
         self.numFolds = 10
-        self.posCount = collections.defaultdict(lambda: 0)
-        self.negCount = collections.defaultdict(lambda: 0)
-        self.docCount = collections.defaultdict(lambda: 0)
-        self.vocCount = collections.defaultdict(lambda: 0)
-        self.nk = {'pos':collections.defaultdict(lambda: 0),'neg':collections.defaultdict(lambda: 0)}
-        # self.nkSize = 0
-        # self.v_pos = 0 #vocabulary size of pos
-        # self.v_neg = 0 #vocabulary size of neg
-        self.posTotal = 0
-        self.negTotal = 0
-        self.docTotal = 0
-        self.doc_count_pos = 0
-        self.doc_count_neg = 0
-
-        self.test = 0
-
         # TODO
         # Implement a multinomial naive bayes classifier and a naive bayes classifier with boolean features. The flag
         # naiveBayesBool is used to signal to your methods that boolean naive bayes should be used instead of the usual
@@ -61,6 +45,20 @@ class NaiveBayes:
         # If any one of the flags filter stop words, boolean naive bayes and best model flags are high, the other two
         # should be off. If you want to include stop word removal or binarization in your best performing model, you
         # will need to write the code accordingly.
+        self.countpos = collections.defaultdict(lambda: 0)
+        self.countneg = collections.defaultdict(lambda: 0)
+        self.countdoc = collections.defaultdict(lambda: 0)
+        self.countvoc = collections.defaultdict(lambda: 0)
+        self.pn = {'pos':collections.defaultdict(lambda: 0),'neg':collections.defaultdict(lambda: 0)}
+        self.totalpos = 0
+        self.totalneg = 0
+        self.totaldoc = 0
+        #self.doc_count_pos = 0
+        #self.doc_count_neg = 0
+
+        #self.test = 0
+
+       
 
     def classify(self, words):
         """
@@ -71,15 +69,13 @@ class NaiveBayes:
         # Write code here
         # add 2 smoothing to avoid math domain error
 
-        # print (self.test,self.doc_count_pos)
-        # self.doc_count_pos = sum(self.nk['pos'].itervalues())
-        # self.doc_count_neg = sum(self.nk['neg'].itervalues())
+        
 
         if self.stopWordsFilter:
             words = self.filterStopWords(words)
 
-        score_pos = math.log(self.docCount['pos']) - math.log(self.docTotal)
-        score_neg = math.log(self.docCount['neg']) - math.log(self.docTotal)
+        score_pos = math.log(self.countdoc['pos']) - math.log(self.totaldoc)
+        score_neg = math.log(self.countdoc['neg']) - math.log(self.totaldoc)
 
 
         if self.naiveBayesBool:
@@ -91,11 +87,11 @@ class NaiveBayes:
         else:
             smooth_var = 1.0
         for w in words:
-            score_pos += math.log(self.posCount[w] + smooth_var)
-            score_pos -= math.log(self.posTotal + smooth_var*len(self.vocCount))
+            score_pos += math.log(self.countpos[w] + smooth_var)
+            score_pos -= math.log(self.totalpos + smooth_var*len(self.countvoc))
         for w in words:
-            score_neg += math.log(self.negCount[w]+smooth_var)
-            score_neg -= math.log(self.negTotal + smooth_var*len(self.vocCount))
+            score_neg += math.log(self.countneg[w]+smooth_var)
+            score_neg -= math.log(self.totalneg + smooth_var*len(self.countvoc))
         return 'pos' if score_pos > score_neg else 'neg'
 
     def addDocument(self, classifier, words):
@@ -106,32 +102,26 @@ class NaiveBayes:
         # TODO
         # Train model on document with label classifiers and words
         # Write code here
-        self.docCount[classifier] += 1
-        self.docTotal += 1
-        uniqueList =[]
+        self.countdoc[classifier] += 1
+        self.totaldoc += 1
+        unilist =[]
 
         if self.naiveBayesBool:
             words = self.remove_duplicate(words)
 
         for w in words:
-            if w not in uniqueList:
-                self.nk[classifier][w] += 1
-                uniqueList.append(w)
-            if self.vocCount[w] == 0:
-                self.vocCount[w] += 1
+            if w not in unilist:
+                self.pn[classifier][w] += 1
+                unilist.append(w)
+            if self.countvoc[w] == 0:
+                self.countvoc[w] += 1
             if classifier is 'pos':
-                self.posTotal += 1
-                self.posCount[w] += 1
+                self.totalpos += 1
+                self.countpos[w] += 1
             else:
-                self.negTotal += 1
-                self.negCount[w] += 1
-        # self.v_pos = len(self.posCount)
-        # self.v_neg = len(self.negCount)
-
-
-        # words = self.remove_duplicate(words)
-        # if classifier is 'pos':
-        #     self.test += len(words)
+                self.totalneg += 1
+                self.countneg[w] += 1
+        
     def remove_duplicate(self,l):
         words = []
         [words.append(x) for x in l if x not in words]
